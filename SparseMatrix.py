@@ -54,6 +54,7 @@ class SparseMatrix:
                     row_ind[i+1] = (self.number_of_nonzero)
                         
             self.sparse_form = [sparse_mat, col_ind, row_ind]
+            self.noCols = np.shape(mat)[1] + 1
         elif len(args) == 3:
             self.sparse_form = [args[0], args[1], args[2]]
         
@@ -110,21 +111,20 @@ class SparseMatrix:
         if self.intern_represent == "CSC":
             print("Already CSC")
         else:
-            newV = []
-
-            newRow = []
+            self.intern_represent = "CSC"
             rowChange = []
-
+            
             ## Calculate base for new row_ind
             for i in range(len(self.sparse_form[2])-1):
                 diff = self.sparse_form[2][i+1]-self.sparse_form[2][i]
                 rowChange.extend([i]*diff)
-
-            #print(rowChange)
+            
+            newV = []
+            newRow = []
             newCol = [-1] * len(self.sparse_form[1])
             newCol[0] = 0
-
-            ## Calculate new sparse_mat and new col_ind
+            
+            ## Append new values for each of the three arrays
             newNonZ = 0
             for i in range(np.max(self.sparse_form[1])+1):
                 for j in range(len(self.sparse_form[1])):
@@ -134,13 +134,16 @@ class SparseMatrix:
                         newRow.append(rowChange[j])
                         newNonZ += 1
                         newCol[i+1] = newNonZ
-
-
+            
+            ## Add missning column values
+            while(len(newCol) < self.noCols):
+                newCol.append(newCol[-1])
+                
+            ## Update attributes
             self.sparse_form[0] = newV
             self.sparse_form[1] = [value for value in newCol if value != -1]
-            #self.sparse_form[1] = np.insert(np.cumsum(np.bincount(self.sparse_form[1])), 0, 0)
             self.sparse_form[2] = newRow
-            
+        
         return self
     
     def __eq__(self, other):
