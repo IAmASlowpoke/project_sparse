@@ -137,3 +137,20 @@ print(test_add_not_same(A, B))
 
 #Testing if the Exception gets raised when dimensions does not match
 print(test_wrongDimensions(A, C))
+
+def testTypeConvert(M):
+    temp = SparseMatrix(M)
+    M_sparse = temp.CSRtoCSC()
+    M_scipy = sp.csc_matrix(M)
+    M_scipy_arr = np.array([M_scipy.data, M_scipy.indices, M_scipy.indptr], dtype = object)
+    
+    M_equal = []
+    M_equal.append(np.array_equal(M_sparse.sparse_form[0], M_scipy_arr[0]))
+    M_equal.append(np.array_equal(M_sparse.sparse_form[1], M_scipy_arr[2]))
+    M_equal.append(np.array_equal(M_sparse.sparse_form[2], M_scipy_arr[1]))
+    
+    return M_equal
+
+# Testing conversion from CSR to CSC. Should return two lists containing three trues"
+print(testTypeConvert(A))
+print(testTypeConvert(B))
